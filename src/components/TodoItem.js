@@ -4,7 +4,7 @@ import PropTypes from 'prop-types'
 const TodoItem = props => {
     const todo = props.todoProps
     const markComplete = props.markCompleteFunc
-    const deleTodo = props.deleTodoFunc
+    const deleteTodo = props.deleteTodoFunc
 
     //Styles
     const todoItemStyle ={
@@ -32,7 +32,7 @@ const TodoItem = props => {
                 checked={todo.completed}
             />
             {todo.title}
-            <button style={deleteButtonStyle} onClick={deleTodo.bind(this, todo.id)}>
+            <button style={deleteButtonStyle} onClick={deleteTodo.bind(this, todo.id)}>
                 Delete
             </button>
         </p>
@@ -43,7 +43,7 @@ const TodoItem = props => {
 TodoItem.propTypes = {
     todoProps: PropTypes.object.isRequired,
     markCompleteFunc: PropTypes.func.isRequired,
-    deleTodoFunc: PropTypes.func.isRequired
+    deleteTodoFunc: PropTypes.func.isRequired
 }
 
 export default TodoItem

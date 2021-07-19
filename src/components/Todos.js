@@ -1,55 +1,80 @@
-import React, { Fragment, useState } from 'react'
+import React, { Fragment, useState, useEffect } from 'react'
 import TodoItem from './TodoItem'
+import AddTodo from './AddTodo'
+import axios from 'axios'
 
-function Todos() {
-    const [todosState, setTodosState] = useState([
+import { v4 as uuidv4 } from 'uuid'
+
+const Todos = () => {
+  const [todosState, setTodosState] = useState([])
+
+  useEffect(() => {
+    const getTodos = async () => {
+      try {
+        const res = await axios.get(
+          'https://jsonplaceholder.typicode.com/todos?_limit=10'
+        )
+        // console.log(res.data)
+        setTodosState(res.data)
+      } catch (error) {
+        console.log(error.message)
+      }
+    }
+
+    getTodos()
+  }, [])
+
+  const markComplete = id => {
+    const newTodos = todosState.map(todo => {
+      if (todo.id === id) todo.completed = !todo.completed
+      return todo
+    })
+
+    setTodosState(newTodos)
+  }
+
+  const deleteTodo = async id => {
+    try {
+      await axios.delete(`https://jsonplaceholder.typicode.com/todos/${id}`)
+      const newTodos = todosState.filter(todo => todo.id !== id)
+      setTodosState(newTodos)
+    } catch (error) {
+      console.log(error.message)
+    }
+  }
+
+  const addTodo = async title => {
+    try {
+      const res = await axios.post(
+        'https://jsonplaceholder.typicode.com/todos',
         {
-            id: 1,
-            title: 'Việc 1',
-            completed: false
-        },
-        {
-            id: 2,
-            title: 'Việc 2',
-            completed: false
-        },
-        {
-            id: 3,
-            title: 'Việc 3',
-            completed: false
+          title,
+          completed: false
         }
-
-
-    ])
-
-    const markComplete = id =>{
-        const newTodos = todosState.map(todo =>{
-            if (todo.id === id) todo.completed = !todo.completed
-            return todo
-        })
-
-        setTodosState(newTodos)
+      )
+      console.log(res.data)
+      const newTodos = [...todosState, res.data]
+      setTodosState(newTodos)
+    } catch (error) {
+      console.log(error.message)
     }
+  }
 
-    const deleteTodo = id =>{
-        const newTodos = todosState.filter(todo => todo.id !== id)
-        setTodosState(newTodos)
-    }
-
-    return (
-        <Fragment>
-            {todosState.map(todo =>{
-                return(
-                    <TodoItem 
-                        key={todo.id} 
-                        todoProps={todo} 
-                        markCompleteFunc={markComplete}
-                        deleTodoFunc={deleteTodo} 
-                    />
-                ) 
-            })}
-        </Fragment>
-    )
+  return (
+    <Fragment>
+      <AddTodo addTodoFunc={addTodo} />
+      {todosState.map(todo => {
+        return (
+          <TodoItem
+            key={todo.id}
+            todoProps={todo}
+            markCompleteFunc={markComplete}
+            deleteTodoFunc={deleteTodo}
+          />
+        )
+      })}
+    </Fragment>
+  )
 }
 
 export default Todos
